@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.paymentchain</groupId>
+    <artifactId>paymentchanparent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    
+    
+    <modules>
+        <module>bussinesdomain</module>
+    </modules>
+    
+    
+    <properties>
+        <!-- Define la versión de Java utilizada para compilar el código fuente -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <!-- Define la versión de Java objetivo para la ejecución del código -->
+        <maven.compiler.target>17</maven.compiler.target>
+        <!-- Especifica la versión de Spring Boot que se utiliza en el proyecto -->
+        <spring-boot.version>3.4.4</spring-boot.version>
+        <!-- Especifica la versión del controlador de PostgreSQL utilizada para conectarse a la base de datos -->
+        <postgres.version>42.7.5</postgres.version>
+        <!-- Establece la versión de la librería para validación de Java utilizada en el proyecto -->
+        <java-validation.version>2.0.1.Final</java-validation.version>
+        <!-- Define la versión del plugin de Maven para trabajar con Dockerfiles -->
+        <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    
+    
+    <!--
+    Este bloque define la gestión de dependencias dentro del proyecto. 
+    Importa las dependencias de Spring Boot, permitiendo heredar versiones y configuraciones predefinidas 
+    para facilitar la integración de las bibliotecas de Spring Boot en el proyecto Maven.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <dependencies>
+        <!-- Spring Boot Starter: Proporciona dependencias esenciales y configuraciones automáticas para comenzar rápidamente 
+        con aplicaciones Spring Boot. Incluye soporte para web, datos y otras herramientas básicas. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+    
+
+        <!-- Spring Boot DevTools: Herramienta para facilitar el desarrollo, habilitando reinicio automático, recarga en vivo 
+        de recursos y opciones avanzadas de depuración durante el desarrollo. Ideal para aplicaciones locales. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+
+        <!-- Spring Boot Starter Test: Proporciona dependencias necesarias para realizar pruebas. 
+        Incluye herramientas como JUnit y Mockito para pruebas unitarias y de integración.
+        Configurado con alcance 'test' para usarse solo durante la fase de prueba. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <!-- Excluir la compatibilidad con JUnit4, usando únicamente JUnit5 para un entorno de pruebas moderno y eficiente. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+    
+    
+    
+    
+    
+    
+    <build>
+        <plugins>
+            <!--Tghis plugin generate reports in two differents forma .txt and xml 
+            in test phase when build life cicle is execuite-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>    
+                <version>3.2.5</version>         
+                <configuration>
+                    <useSystemClassLoader>false</useSystemClassLoader>                    
+                </configuration>
+            </plugin>
+            
+            
+            
+            <!--It is the spring-boot repackage goal that repackages the JAR produced 
+            by maven to specify the main class and make it executable using an embedded container-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>     
+                <version>${spring-boot.version}</version>      
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>        
+            <!--   <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>${dockerfile-maven-version}</version>                               
+                <executions>
+                    <execution>                        
+                        <id>build-docker-image</id>
+                        <phase>package</phase>
+                        <goals>                                              
+                            <goal>build</goal>
+                           <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>                       
+                    <repository>digitalthinking/microservice-docker-${project.artifactId}</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>-->  
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>   
+                <version>4.0.0-M13</version>           
+                <configuration>
+                    <locales>en,fr,es</locales>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>     
+                <version>3.6.3</version>          
+                <configuration>                   
+                </configuration> 
+            </plugin>
+            <!--generate project code documentation-->
+            <!--  <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>${javadoc.opts}</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <!--generate maven site documentation-->
+            <!--  <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.9.1</version>    
+                <configuration>
+                    <locales>es,es</locales>
+                </configuration>    
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>${javadoc.opts}</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+        </plugins>
+    </build>
+    
+    
+    
+    
+    
+    
+</project>
