@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 //Capturar logs en mi servidor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -48,6 +49,14 @@ public class CustomerRestController {
         this.customerrepository = customerrepository;
     }
 
+    @Autowired
+    private Environment env;
+    
+    //con este metodo llamo a mi properties tanto en local,desarrollo y pruduccion que tengo en github 
+    @GetMapping("/check")
+    public String check(){
+        return "Hello your property values is: " + env.getProperty("custom.activeprofileName");
+    }
     
     
     
@@ -151,7 +160,7 @@ public class CustomerRestController {
                 customer.getProduct().forEach(product -> {
                     try {
                         product.setProductName(productServiceClient.getProductName(product.getProductId()));
-                        System.out.println("######"+ product.getProductName());
+                        
                     } catch (Exception e) {
                         log.warn("Error obteniendo nombre para producto {}: {}",product.getProductId());
                         product.setProductName("Nombre de producto no disponible");
@@ -180,6 +189,13 @@ public class CustomerRestController {
             
         }
         
+    }
+    
+    
+    //metodo para probar el servicio la comunicacion con el servicio de Eureka
+    @GetMapping("/holaMundo")
+    public String holaMundo(){
+        return "hola mundo desde customer";
     }
     
 }

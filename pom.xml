@@ -10,6 +10,7 @@
     
     <modules>
         <module>bussinesdomain</module>
+        <module>infraestructuradomain</module>
     </modules>
     
     
@@ -27,6 +28,9 @@
         <!-- Define la versión del plugin de Maven para trabajar con Dockerfiles -->
         <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <!-- Define la versión de spring cloud que es compatible con la 3.4.4 de spring boot -->
+        <spring-cloud.version>2024.0.1</spring-cloud.version>
     </properties>
     
     
@@ -37,6 +41,7 @@
     para facilitar la integración de las bibliotecas de Spring Boot en el proyecto Maven.
     -->
     <dependencyManagement>
+        
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -45,7 +50,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            
         </dependencies>
+  
+        
     </dependencyManagement>
     
     <dependencies>
@@ -80,6 +97,28 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        
+        <!--dependencias para consumir el servidor de spring cloud -->
+        
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+            
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+      
+        
+        
+        <!--esto me permite el no crear discovery y utilizar el getinstance buscamos directamente con el nombre del microservicio -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        
     </dependencies>
     
     

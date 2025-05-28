@@ -6,6 +6,7 @@ package com.paymentchain.product.controller;
 
 import com.paymentchain.product.entity.Product;
 import com.paymentchain.product.repository.ProductRepository;
+import com.paymentchain.product.services.LogicServices;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -25,6 +26,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 //para mirar debugs controlados
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.reactive.function.client.WebClient;
+
+
+
 /**
  *
  * @author herna
@@ -32,6 +37,18 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/product")
 public class ProductRestController {
+    
+   @Autowired
+   private LogicServices logis;
+   
+   
+    
+    
+    @GetMapping("holaEureka")
+    public String holaEureka(){
+        System.out.println("### " + logis.getNameString());
+        return logis.getNameString();
+    }
     
     
     private final Logger logs = LoggerFactory.getLogger(ProductRestController.class);
@@ -107,5 +124,8 @@ public class ProductRestController {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("El cliente no se elimino ya que el id no existe");
         }
     }
+    
+    
+    
     
 }
