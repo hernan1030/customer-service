@@ -5,9 +5,10 @@
 package com.paymentchain.customer.controller;
 
 import com.paymentchain.customer.entity.Customer;
+import com.paymentchain.customer.exception.CustomerNotFoundException;
 import com.paymentchain.customer.repository.CustomerRepository;
 import com.paymentchain.customer.services.ProductServiceClient;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -115,8 +116,8 @@ public class CustomerRestController {
         
     }
     
-    @PostMapping
-    public ResponseEntity<?> post(@RequestBody Customer input) {
+    @PostMapping 
+    public ResponseEntity<?> post(@Valid @RequestBody Customer input) {
 
         //aseguramos que hibernate no genere el id el mismo y me de un error como lo es javax.persistence.EntityExitsException
         input.setId(null);
@@ -153,7 +154,7 @@ public class CustomerRestController {
         try {
             log.debug("Code extraido de customer: {}  ", code);
             Customer customer = customerrepository.findByCode(code)
-                    .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
+                    .orElseThrow(() -> new CustomerNotFoundException("Cliente no encontrado con code: " + code));
 
             //procesar producto
             if (customer.getProduct() != null) {
@@ -161,16 +162,14 @@ public class CustomerRestController {
                     try {
                         product.setProductName(productServiceClient.getProductName(product.getProductId()));
                         
-                    } catch (Exception e) {
+                    } catch (CustomerNotFoundException e) {
                         log.warn("Error obteniendo nombre para producto {}: {}",product.getProductId());
                         product.setProductName("Nombre de producto no disponible");
                     }
                 });
-                
-                
+     
             }
-            
-            
+
             try {
                 List<Object> transaction = productServiceClient.getTransactionIban(customer.getAccountNumber());
                 if(transaction != null && !transaction.isEmpty()){

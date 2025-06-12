@@ -4,9 +4,15 @@
  */
 package com.paymentchain.product.controller;
 
+import com.paymentchain.product.dto.ProductDto;
 import com.paymentchain.product.entity.Product;
+import com.paymentchain.product.mapper.ProductMapper;
+
 import com.paymentchain.product.repository.ProductRepository;
 import com.paymentchain.product.services.LogicServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
@@ -26,7 +32,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 //para mirar debugs controlados
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.function.client.WebClient;
+
 
 
 
@@ -36,14 +42,18 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 @RestController
 @RequestMapping("/product")
+@Tag(name="product",description = "Operaciones relacionadas con el producto del cliente")
 public class ProductRestController {
     
    @Autowired
    private LogicServices logis;
    
+   //Inyeccion del mapper del dto
+   private final ProductMapper productMapper = ProductMapper.INSTANCE; 
+   
    
     
-    
+    @Operation(summary = "Metodo de pruaba para comprobar que tiene coneccion con Eureka")
     @GetMapping("holaEureka")
     public String holaEureka(){
         System.out.println("### " + logis.getNameString());
@@ -60,7 +70,7 @@ public class ProductRestController {
     
     
     
-    //Trae todos los productos
+    @Operation(summary = "Lista todo los todos los productos")
     @GetMapping()
     public List<Product> finAll() {
         return proRepository.findAll();
@@ -68,14 +78,14 @@ public class ProductRestController {
     
     
     
-    //trae los productos por su id
+    @Operation(summary = "Lista los productos buscando por su Id")
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductId(@PathVariable("id") Long id) {
         Optional<Product> optioanalProduct = proRepository.findById(id);
         
         if(optioanalProduct.isPresent()){
              
-            
+            ProductDto dto = productMapper.productToproductdto(optioanalProduct.get());
             return new ResponseEntity<>(optioanalProduct.get(),HttpStatus.OK);
         }else{
             logs.error("Cliente no encontrado:  {} ",id, optioanalProduct.get());
@@ -84,7 +94,7 @@ public class ProductRestController {
     }
     
     
-    //actualiza los clientes buscandolos por su id
+    @Operation(summary = "Actualiza los los productos , buscando por su id")
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@PathVariable("id") Long id, @RequestBody Product input) {
         
@@ -104,18 +114,24 @@ public class ProductRestController {
         }
     }
     
+    @Operation(summary = "Guarda todos los productos tiene campos obligatorios como los son code y name")
     @PostMapping
-    public ResponseEntity<?> post(@RequestBody Product input) {
-        input.setId(null);
+    public ResponseEntity<?> post(@Valid  @RequestBody ProductDto inputdto) {
         
-        Product save = proRepository.save(input);
+        Product product = productMapper.productDtoToProduct(inputdto);
+        product.setId(null);
+        Product saveProduct = proRepository.save(product);
         
-        return new ResponseEntity<>(save,HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saveProduct);
+    
+       
     }
     
+    @Operation(summary = "Elimina los productos buscando por su id")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Optional<Product> optionalProduct = proRepository.findById(id);
+                
         
         if(optionalProduct.isPresent()){
             proRepository.deleteById(id);

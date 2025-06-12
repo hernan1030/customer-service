@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -28,10 +29,13 @@ public class Transaction {
     private Long id;
     
     private String reference;
+    
+    @NotNull(message="En este campo es obligatorio el numero de cuenta")
     private String accontIban;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private  LocalDateTime transactionDate;
+    
     
     private BigDecimal amount;
     private BigDecimal fee;

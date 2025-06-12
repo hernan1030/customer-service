@@ -4,12 +4,15 @@
  */
 package com.paymentchain.customer.controller;
 
+import com.paymentchain.customer.exception.CustomerNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
@@ -54,7 +57,29 @@ public class GlobalExceptionHandler {
         log.error("Error al comunicarse con el servicio interno ", e);
         
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body("Error al comunicarser con el servidor interno " + e.getMessage());
+                .body("Error al comunicarse con el servidor interno " + e.getMessage());
+    }
+    
+    
+    
+    
+    // Manejo especifico del erro, en caso de no encontrar un code en rescontroller
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<String> handlerCustomerNotFoundException(CustomerNotFoundException e){
+        log.error("Error: {}",e.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Erro cliente no encontrado...." + e.getMessage());
+    }
+    
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handlerArgumentInvalid(MethodArgumentNotValidException ex){
+        
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ":  " + error.getDefaultMessage())
+                .collect(Collectors.joining(";"));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
     
     

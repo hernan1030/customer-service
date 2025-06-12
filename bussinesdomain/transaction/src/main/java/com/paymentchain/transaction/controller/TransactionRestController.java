@@ -5,8 +5,10 @@
 package com.paymentchain.transaction.controller;
 
 import com.paymentchain.transaction.entity.Transaction;
+import com.paymentchain.transaction.exception.exceptionNotFoundEntity;
 import com.paymentchain.transaction.repository.TransactionRepository;
 import com.paymentchain.transaction.service.TransactionServices;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,15 +64,15 @@ public class TransactionRestController {
     
     @GetMapping("/{id}")
     public ResponseEntity<Transaction> getTransactionId(@PathVariable("id") Long id) {
-        Optional<Transaction> optioanlTransaction = tranRepository.findById(id);
+        Transaction transaction = tranRepository.findById(id)
+                .orElseThrow(() -> new exceptionNotFoundEntity("No se encontro la endidad buscada con el id: " + id));
         
-        if(optioanlTransaction.isPresent()){
-            return new ResponseEntity<>(optioanlTransaction.get(), HttpStatus.OK);
-                  
-        }else{
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return  new ResponseEntity<>(transaction, HttpStatus.OK);
     }
+    
+    
+    
+    
     
     @PutMapping("/{id}")
     public ResponseEntity<?> putTransactionId(@PathVariable("id") Long id, @RequestBody Transaction input) {
@@ -107,7 +109,7 @@ public class TransactionRestController {
     }
     
     @PostMapping
-    public ResponseEntity<?> post(@RequestBody Transaction input) {
+    public ResponseEntity<?> post(@Valid @RequestBody Transaction input) {
         input.setId(null);
         
         input.setReference(tranServices.generateTransactionReference());

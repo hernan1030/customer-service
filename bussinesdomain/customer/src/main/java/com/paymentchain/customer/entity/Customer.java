@@ -4,7 +4,7 @@
  */
 package com.paymentchain.customer.entity;
 
-import jakarta.annotation.Generated;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.Data;
 
@@ -28,7 +29,11 @@ public class Customer {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     
+    
+    @NotNull(message="El valor no puede ser nulo")
     private Long code;
+    
+    
     private String accountNumber;
     private String names;
     private String surname;
